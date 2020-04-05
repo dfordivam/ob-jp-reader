@@ -21,6 +21,7 @@ import qualified Data.Map as Map
 import qualified Data.Array as A
 import Data.Array (Array, Ix)
 import Data.Text (Text)
+import Data.Time
 import Data.Map (Map)
 import qualified GHCJS.DOM.DOMRectReadOnly as DOM
 import qualified GHCJS.DOM.Element as DOM
@@ -400,6 +401,15 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
         t <- widgetHold init
           (init <$ startTicksAgain)
         return (switch . current $ join t)
+
+  let startTimeWidget = do
+        t <- liftIO $ getCurrentTime
+        el "p" $ text $ "Start Time: " <> tshow t
+  widgetHold startTimeWidget $ ffor startTicksAgain $ \_ -> startTimeWidget
+
+  widgetHold blank $ ffor stopTicks $ \_ -> do
+    t <- liftIO $ getCurrentTime
+    el "p" $ text $ "Stop Time: " <> tshow t
 
   tickEv <- ticksWidget
 
