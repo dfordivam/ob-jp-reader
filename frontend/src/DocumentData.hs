@@ -17,6 +17,7 @@ import Control.Monad.IO.Class
 import Data.Text (Text)
 import qualified Data.Text as T
 import Reflex.Dom.Core
+import Data.Char
 
 import Common.TR
 
@@ -29,10 +30,27 @@ dummyData :: ReaderDocumentData
 dummyData = (ReaderDocumentId 1, "dummy", (1, Nothing), endPara, annText)
   where
     endPara = length longText1
-    annText = zip [1..] $ map oneLine longText1
-    oneLine = (map (Left . T.singleton)) . T.unpack
+    annText = zip [1..] longText1
 
-longText1 = take 100 $ concat $ repeat plainText1
+longText1 = take 100 $ concat $ repeat $ map oneLine plainText1
+  where
+    oneLine = map oneChar . T.unpack
+    oneChar c = if isKana c
+      then Left (T.singleton c)
+      else Right
+        (Vocab [KanjiWithReading (Kanji $ T.singleton c) (T.singleton 'い')]
+        , [], False)
+
+
+-- 3040 - 30ff
+isKana c = c > l && c < h
+  where l = chr $ 12352
+        h = chr $ 12543
+
+-- 3400 - 9faf
+isKanji c = c > l && c < h
+ where l = chr $ 13312
+       h = chr $ 40879
 
 plainText1 =
   [ "東京オリンピック・パラリンピックをめぐり、安倍総理大臣は、ＩＯＣ＝国際オリンピック委員会のバッハ会長と電話会談し、１年程度の延期を提案したのに対し、バッハ会長は、全面的に同意する意向を示し、遅くとも来年夏までに開催することで合意しました。"
