@@ -13,9 +13,20 @@ library
                , reflex-dom
                , obelisk-executable-config-lookup
                , obelisk-generated-static
+               , containers
                , text
+               , array
+               , ghcjs-dom
+               , safe
+               , these
+               , time
+               , vector
+               , data-default
+               , aeson
+               , lens
   exposed-modules:
     Frontend
+    ReadingPane
   ghc-options: -Wall
 
 executable frontend

@@ -9,6 +9,13 @@ library
                , obelisk-route
                , mtl
                , text
+               , these
+               , time
+               , vector
+               , data-default
+               , aeson
+               , lens
   exposed-modules:
     Common.Api
     Common.Route
+    Common.TR
