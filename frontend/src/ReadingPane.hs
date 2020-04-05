@@ -405,7 +405,7 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
   let startTimeWidget = do
         t <- liftIO $ getCurrentTime
         el "p" $ text $ "Start Time: " <> tshow t
-  widgetHold startTimeWidget $ ffor startTicksAgain $ \_ -> startTimeWidget
+  widgetHold startTimeWidget $ ffor (updated rs) $ \_ -> startTimeWidget
 
   widgetHold blank $ ffor stopTicks $ \_ -> do
     t <- liftIO $ getCurrentTime
