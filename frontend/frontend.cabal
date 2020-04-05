@@ -26,6 +26,7 @@ library
                , lens
   exposed-modules:
     Frontend
+    DocumentData
     ReadingPane
   ghc-options: -Wall
 

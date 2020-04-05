@@ -29,10 +29,7 @@ import Data.Text.IO as T
 import Safe
 
 import Common.TR
-
-type ReaderDocumentData =
-  (ReaderDocumentId, Text, (Int, Maybe Int), Int
-   , [(Int, AnnotatedPara)])
+import DocumentData
 
 checkVerticalOverflow
   :: (DOM.IsElement self1,
@@ -288,12 +285,13 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
 
     let
       btnPress = leftmost [next,prev]
-      prevNxtBtnWrapDivAttr = (\h fs -> ("class" =: "col-xs-1")
-        <> ("style" =: ("height: " <> (if fs then "100%;" else tshow h <> "px;"))))
-              <$> (_numOfLines <$> rs) <*> fullscreenDyn
+      prevNxtBtnWrapDivAttr = mempty
+        -- (\h fs -> ("class" =: "col-xs-1")
+        -- <> ("style" =: ("height: " <> (if fs then "100%;" else tshow h <> "px;"))))
+        --       <$> (_numOfLines <$> rs) <*> fullscreenDyn
 
       btnAttr vis = ("class" =: "btn btn-default")
-        <> ("style" =: ("height: 80%; width: 1em;" <> visV))
+        -- <> ("style" =: ("height: 80%; width: 1em;" <> visV))
         where
           visV = if vis then "" else "visibility: hidden;"
 
@@ -321,6 +319,15 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
             btn "btn-default" "X"
           (e,_) <- elDynAttr' "button" leftBtrAttr $ text "<"
           return (domEvent Click e, c1)
+
+        (rightEv, cEv1) <- elDynAttr "div" prevNxtBtnWrapDivAttr $ do
+          let closeBtnAttr = ffor fullscreenDyn $ \fs -> if fs
+                then ("style" =: "height: 10%;")
+                else ("style" =: "height: 10%; visibility: hidden;")
+          cEv <- elDynAttr "div" closeBtnAttr $ do
+            btn "btn-default" "Close"
+          (e,_) <- elDynAttr' "button" rightBtrAttr $ text ">"
+          return (domEvent Click e, cEv)
 
         v <- elDynAttr' "div" divAttr $ do
           vIdEv1 <- el "div" $ do
@@ -355,15 +362,6 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
             return ()
           return (i, o, vIdEv1)
 
-        (rightEv, cEv1) <- elDynAttr "div" prevNxtBtnWrapDivAttr $ do
-          let closeBtnAttr = ffor fullscreenDyn $ \fs -> if fs
-                then ("style" =: "height: 10%;")
-                else ("style" =: "height: 10%; visibility: hidden;")
-          cEv <- elDynAttr "div" closeBtnAttr $ do
-            btn "btn-default" "Close"
-          (e,_) <- elDynAttr' "button" rightBtrAttr $ text ">"
-          return (domEvent Click e, cEv)
-
         let
           -- The button on left is next in vertical and prev in horizontal
           next1 = switch . current $ ffor (_verticalMode <$> rs) $ \v -> if v
@@ -397,7 +395,7 @@ verticalReader rs eh fullScrEv (docId, _, startParaMaybe, endParaNum, annText) =
               (return never <$ stopTicks)
             tickW = do
               ev <- getPostBuild
-              de <- delay 1.5 $ leftmost [ev, () <$ evVisible]
+              de <- delay 0.5 $ leftmost [ev, () <$ evVisible]
               return $ de
         t <- widgetHold init
           (init <$ startTicksAgain)
